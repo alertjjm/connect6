@@ -28,7 +28,9 @@ MainWindow::MainWindow(QWidget *parent)
             scene->addRect(25*i, 25*j, 25, 25, outlinePen, boardBrush);
         }
     }
+    /*
     scene->addEllipse(212.5, 212.5, 25, 25, outlinePen, brush);
+    */
     scene->setLayableOff();
 }
 
@@ -40,13 +42,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
+    /*
     QPair<int, int> pick;
     scene->setLayableOn();
     scene->playernum=1;
-    pick=scene->choose();
+    //pick=scene->choose();
     scene->place(pick.first,pick.second);
     pick=scene->choose();
     scene->place(pick.first,pick.second);
+    */
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -58,6 +62,9 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_pushButton_3_clicked()
 {
     QString ip=ui->textEdit->toPlainText();
+    if(ip==""){
+        return;
+    }
     MultiPlay *multi=new MultiPlay(scene,ui->textEdit);
     multi->setAddr(ip,8089);
     multi->play();

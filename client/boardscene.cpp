@@ -1,5 +1,7 @@
 #include "boardscene.h"
+#include "minmax.h"
 #include<QMessageBox>
+pos nextpos;
 BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
 {
     srand(time(NULL));
@@ -12,18 +14,47 @@ BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
     for(int i=0; i<BOARDSIZE; i++)
         for(int j=0; j<BOARDSIZE; j++)
             Board[i][j]=0;
-    Board[BOARDSIZE/2][BOARDSIZE/2]=1;
-    turn=2;
 }
-QPair<int, int> BoardScene:: choose(){
+
+
+QPair<uint8_t, uint8_t> BoardScene:: choose(int pn){
+    qDebug()<<"choosing func start";
     QPair<int,int> pos;
-    pos.first=rand()%19;
-    pos.second=rand()%19;
-    while(Board[pos.first][pos.second]!=0){
-        pos.first=rand()%19;
-        pos.second=rand()%19;
+    node* root = new node;
+    root->depth = 0;
+    root->parent = NULL;
+    if(pn==1){
+        root->count=4;
+    }
+    else
+        root->count=2;
+    memcpy(root->boardstatus, Board, sizeof(int)*BOARDSIZE*BOARDSIZE);
+    /****root의 board 상황 적기, x,y 좌표도*****/
+    node* tail = new node;
+    tail->sibling = NULL;
+    tail->parent = NULL;
+    tail->firstchild = NULL;
+    root->sibling = tail;
+    Init(root,pn);
+    node* end = getEnd(root);
+    MinMax(end->parent, -INF, INF,pn);
+    deleting(root);
+    pos.first=nextpos.x;
+    pos.second=nextpos.y;
+    qDebug()<<"choosing func end"<<pos.first<<" "<<pos.second;
+    int a;
+    for(int i=0; i<1000; i++){
+        a=1+5;
     }
     return pos;
+}
+void BoardScene::printing(){
+    for(int i=0; i<BOARDSIZE; i++){
+        for(int j=0; j<BOARDSIZE; j++){
+            printf("%2d", Board[i][j]);
+        }
+        printf("\n");
+    }
 }
 void BoardScene::place(int x, int y){
     if(!isLayable())
@@ -38,15 +69,18 @@ void BoardScene::place(int x, int y){
         brush=player1Brush;
         pn=1;
     }
-    addEllipse(-12.5+25*x, -12.5+25*y, 25, 25, outlinePen, brush);
+    //addEllipse(-12.5+25*x, -12.5+25*y, 25, 25, outlinePen, brush);
     Board[y][x]=pn;
     if(wincheck(x,y)){
         setLayableOff();
         QMessageBox m;
-        if((turn/2)%2==1)
-            m.information(nullptr,"게임 끝","흰 승리.");
-        else
-            m.information(nullptr,"게임 끝","흑 승리.");
+        if((turn/2)%2==1){
+            m.information(nullptr,"gameover","white win");
+        }
+        else{
+            m.information(nullptr,"gameover","black win");
+        }
+        return;
     }
     turn++;
 }
@@ -147,16 +181,12 @@ bool BoardScene::wincheck(int x, int y){
             break;
     }
     cnt8--;
-    posx=x;
-    posy=y;
     //cnt3+cnt4가 5냐?
     if(cnt7+cnt8==5)
         return true;
     return false;
 }
-void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    QPair<int, int> pick;
+void BoardScene::mousepress(QGraphicsSceneMouseEvent* event){
     if(!isLayable())
         return;
     QPointF p = event->scenePos();
@@ -164,15 +194,16 @@ void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     p.setY(int((p.y()+12.5) / 25) * 25);
     uint8_t x=uint8_t(p.x()/25);
     uint8_t y=uint8_t(p.y()/25);
-    if (Board[y][x]!=0) return;
-    //qDebug() << p.x()/25 << p.y()/25;
+    if (Board[y][x]!=0){
+        qDebug()<<"Not layable";
+        return;
+    }
     qDebug()<<turn;
     place(x,y);
-    if((turn/2)%2==playernum){
-        pick=choose();
-        place(pick.first,pick.second);
-        pick=choose();
-        place(pick.first,pick.second);
-    }
     emit clickedBoard(uint8_t(p.x()/25), uint8_t(p.y()/25));
+}
+
+void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mousepress(event);
 }

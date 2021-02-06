@@ -8,7 +8,7 @@
 #include <QThread>
 #include "../connect6_protocol/connect6_protocol.h"
 #include "boardscene.h"
-
+#include "minmax.h"
 class MultiPlay : public QObject
 {
     Q_OBJECT
@@ -20,12 +20,14 @@ public:
     void setAddr(QString addr, quint16 port);
     void play();
     void requestToSendPUT();
-
+    void MultiPlay::clickBoard(uint8_t x, uint8_t y);
+    int myplayer_num;
 private slots:
     void gameStart();
     void readyPacketRead();
     void clickedBoard(uint8_t x, uint8_t y);
-
+signals:
+    void mousepress(QGraphicsSceneMouseEvent *event);
 private:
     QTcpSocket *socket;
     QString addr;

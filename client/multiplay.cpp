@@ -1,5 +1,5 @@
 #include "multiplay.h"
-
+#include <Windows.h>
 MultiPlay::MultiPlay()
 {
     MultiPlay(nullptr, nullptr);
@@ -71,7 +71,7 @@ void MultiPlay::readyPacketRead()
 {
     Connect6ProtocolHdr hdr;
     GameStartData rcv_gsd;
-
+    msg->append(tr("Packet received"));
     // Behaviors by state
     while (payload_len > 0 || socket->bytesAvailable() > 0) {
 
@@ -81,9 +81,13 @@ void MultiPlay::readyPacketRead()
             payload_ptr = payload;
             payload_len = socket->bytesAvailable();
             memcpy(payload_ptr, socket->readAll(), payload_len);
+        }else{
+            // Assign payload pointer and length
+            payload_ptr = payload;
+            payload_len = 9;
+            memcpy(payload_ptr, socket->readAll(), 9);
         }
-
-        qDebug() << QByteArray((char*)payload_ptr, payload_len);
+        qDebug() << QByteArray((char*)payload_ptr, payload_len)<<" Bytes:"<<QString::number(payload_len);
 
         // Header parsing
         hdr_parsing(payload_ptr, payload_len, &hdr);
@@ -94,10 +98,11 @@ void MultiPlay::readyPacketRead()
 
             // Not GAME_START -> exit
             if (hdr.type != GAME_START || hdr.player_num == 0) return;
+            if(hdr.player_num>2||hdr.player_num<1) return;
 
             // Get PlayerNum
             player_num = hdr.player_num;
-
+            myplayer_num=hdr.player_num;
             qDebug() << "GAME_START packet received. PlayerNum: " << player_num;
 
             // Pointer to data field
@@ -114,6 +119,10 @@ void MultiPlay::readyPacketRead()
             other_player_name = QString::fromUtf8(rcv_gsd.name, rcv_gsd.name_length-1);
 
             msg->append(tr("Other Player Name: ") + other_player_name);
+            if(hdr.player_num==1)
+                msg->append(tr("Player Num: 1"));
+            else
+                msg->append(tr("Player Num: 2"));
 
             // Pointer to end
             payload_ptr += hdr.data_length;
@@ -125,7 +134,7 @@ void MultiPlay::readyPacketRead()
             break;
 
         case GAME_STARTED:
-
+            if(hdr.player_num<1||hdr.player_num>2)return;
             QBrush playerBrush(hdr.player_num == 1 ? Qt::black : Qt::white);
             QPen outlinePen(Qt::black);
 
@@ -146,10 +155,11 @@ void MultiPlay::readyPacketRead()
 
                 for (int i = 0; i < rcv_ptd.coord_num; i++) {
                     scene->addEllipse(25*rcv_ptd.xy[2*i]-12.5, 25*rcv_ptd.xy[2*i+1]-12.5, 25, 25, outlinePen, playerBrush);
-                    scene->place(rcv_ptd.xy[0],rcv_ptd.xy[1]);
+                    scene->Board[rcv_ptd.xy[2*i+1]][rcv_ptd.xy[2*i]]=hdr.player_num;
                 }
             } else if (hdr.type == TURN) {
                 qDebug() << "TURN packet received.";
+                msg->append(tr("TURN packet received"));
 
                 qDebug() << put_turn_data_parsing(payload_ptr, payload_len, &rcv_ptd);
                 qDebug() << "rcv_ptd.coord_num =" << rcv_ptd.coord_num;
@@ -158,18 +168,25 @@ void MultiPlay::readyPacketRead()
 
                 for (int i = 0; i < rcv_ptd.coord_num; i++) {
                     scene->addEllipse(25*rcv_ptd.xy[2*i]-12.5, 25*rcv_ptd.xy[2*i+1]-12.5, 25, 25, outlinePen, playerBrush);
-                    scene->place(rcv_ptd.xy[0],rcv_ptd.xy[1]);
+                    scene->Board[rcv_ptd.xy[2*i+1]][rcv_ptd.xy[2*i]]=hdr.player_num;
                 }
 
-                playerBrush.setColor(player_num == 1 ? Qt::black : Qt::white);
+                playerBrush.setColor(myplayer_num == 1 ? Qt::black : Qt::white);
                 scene->setLayableOn();
-                QPair<int, int> pick;
-                pick=scene->choose();
-                scene->place(pick.first,pick.second);
-                emit clickedBoard(uint8_t(pick.first/25), uint8_t(pick.second/25));
-                pick=scene->choose();
-                scene->place(pick.first,pick.second);
-                emit clickedBoard(uint8_t(pick.first/25), uint8_t(pick.second/25));
+                QPair<int,int> position=scene->choose(myplayer_num);
+                qDebug()<<"x: "<<nextpos.x<<"y: "<<nextpos.y;
+                scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
+                scene->Board[position.second][position.first]=myplayer_num;
+                layedStoneXY[0]=position.first;
+                layedStoneXY[1]=position.second;
+                position=scene->choose(myplayer_num);
+                scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
+                scene->Board[position.second][position.first]=myplayer_num;
+                layedStoneXY[2]=position.first;
+                layedStoneXY[3]=position.second;
+                qDebug()<<"x: "<<position.first<<"y: "<<position.second;
+                countInLayedStone=2;
+                requestToSendPUT();
             } else if(hdr.type==GAME_OVER){
                 qDebug() << "GAME_OVER packet received.";
 
@@ -187,11 +204,30 @@ void MultiPlay::readyPacketRead()
             break;
         }
     }
+    payload_ptr=payload;
 }
 
 void MultiPlay::clickedBoard(uint8_t x, uint8_t y)
 {
     QBrush playerBrush(player_num == 1 ? Qt::black : Qt::white);
+    qDebug()<<"cl: "<<x<<" "<<y;
+    scene->Board[y][x]=player_num;
+    QPen outlinePen(Qt::black);
+
+    scene->addEllipse(25*x-12.5, 25*y-12.5, 25, 25, outlinePen, playerBrush);
+
+    layedStoneXY[countInLayedStone * 2] = x;
+    layedStoneXY[countInLayedStone * 2 + 1] = y;
+    countInLayedStone++;
+
+    if (countInLayedStone >= 2) {
+        requestToSendPUT();
+    }
+}
+void MultiPlay::clickBoard(uint8_t x, uint8_t y)
+{
+    QBrush playerBrush(player_num == 1 ? Qt::black : Qt::white);
+
     QPen outlinePen(Qt::black);
 
     scene->addEllipse(25*x-12.5, 25*y-12.5, 25, 25, outlinePen, playerBrush);
@@ -215,15 +251,15 @@ void MultiPlay::requestToSendPUT()
     }
 
     // Make GAME_START payload for starting
-    make_put_payload(payload, 1024, &payload_len, player_num, snd_ptd);
+    make_put_payload(payload, 1024, &payload_len, (uint8_t)myplayer_num, snd_ptd);
 
-    qDebug() << QByteArray((char*)payload, payload_len);
-
+    qDebug() <<"Sending... " <<QByteArray((char*)payload, payload_len);
     // Send GAME_START
     socket->write((const char *)payload, payload_len);
 
     payload_len = 0;
 
     countInLayedStone = 0;
+    socket->flush();
     scene->setLayableOff();
 }

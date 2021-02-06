@@ -14,10 +14,16 @@ typedef struct node {
     struct node *sibling;
     struct node* firstchild;
 }node;
+typedef struct pos {
+    int x;
+    int y;
+}pos;
+extern pos nextpos;
 void MinMax(node* move, int alpha, int beta, int pn);
 void MaxMove(node* move, int alpha, int beta, int pn);
 void MinMove(node* move, int alpha, int beta, int pn);
 void Init(node* p_move, int pn);
+void deleting(node* root);
 node* getEnd(node* move);
 void rendering(int Board[][BOARDSIZE]);
 int whoseturn(int turn);

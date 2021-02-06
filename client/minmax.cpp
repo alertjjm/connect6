@@ -6,13 +6,10 @@
 #include<vector>
 #include<cstdlib>
 #include<cstring>
+#include<QDebug>
 #include<vector>
 using namespace std;
-typedef struct pos {
-    int x;
-    int y;
-};
-pos nextpos;
+
 void deleting(node* root) {
     node* pos = root->firstchild;
     delete root;
@@ -32,12 +29,18 @@ int whoseturn(int turn) {
 }
 void MinMax(node* move, int alpha, int beta, int pn) {
     node* cur = move;
-    if (cur == NULL)
+    if (cur == NULL){
+        qDebug()<<"cur is NULL";
         return;
-    if (pn!=whoseturn(move->count))
+    }
+    if (pn==whoseturn(move->count)){
+        qDebug()<<"Max Move Depth "<<QString::number(move->depth)<<" pn:"<<QString::number(pn)<<" cnt: "<<QString::number(move->count);
         MaxMove(cur, alpha, beta, pn);
-    else
+    }
+    else{
+        qDebug()<<"Min Move Depth "<<QString::number(move->depth)<<" pn:"<<QString::number(pn)<<" cnt: "<<QString::number(move->count);
         MinMove(cur, alpha, beta, pn);
+    }
 }
 void MaxMove(node* move, int alpha, int beta, int pn) {
     int max_score = -INF;
@@ -60,12 +63,13 @@ void MaxMove(node* move, int alpha, int beta, int pn) {
     if (move->score < b)
         b = move->score;
     if (move->parent == NULL) {
-        printf("%d\n", move->score);
+        qDebug()<<"Score:"<<move->score;
         node* pos = move->firstchild;
         while (pos->sibling != NULL) {
             if (pos->score == move->score) {
                 nextpos.x = pos->x;
                 nextpos.y = pos->y;
+                qDebug()<<"Breakcond: "<<QString::number(nextpos.x)<<" "<<QString::number(nextpos.y);
                 break;
             }
             pos = pos->sibling;
