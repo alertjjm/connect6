@@ -1,6 +1,11 @@
 #include "boardscene.h"
 #include "minmax.h"
 #include<QMessageBox>
+#include<vector>
+#include <ctime>        // std::time
+#include <cstdlib>
+#include <iostream>     // std::cout
+#include <algorithm>
 pos nextpos;
 BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -16,37 +21,40 @@ BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
             Board[i][j]=0;
 }
 
-
 QPair<uint8_t, uint8_t> BoardScene:: choose(int pn){
+    _sleep(2000);
     qDebug()<<"choosing func start";
-    QPair<int,int> pos;
-    node* root = new node;
-    root->depth = 0;
-    root->parent = NULL;
-    if(pn==1){
-        root->count=4;
+    std::srand ( unsigned ( std::time(0) ) );
+    std::vector<pos> v;
+    for (int y = 0; y < BOARDSIZE; y++) {
+        for (int x = 0; x < BOARDSIZE; x++) {
+            if (Board[y][x] == 0) {
+                if (isnear(Board, x, y)) {
+                    pos p;
+                    p.x = x;
+                    p.y = y;
+                    v.push_back(p);
+                }
+            }
+        }
     }
-    else
-        root->count=2;
-    memcpy(root->boardstatus, Board, sizeof(int)*BOARDSIZE*BOARDSIZE);
-    /****root의 board 상황 적기, x,y 좌표도*****/
-    node* tail = new node;
-    tail->sibling = NULL;
-    tail->parent = NULL;
-    tail->firstchild = NULL;
-    root->sibling = tail;
-    Init(root,pn);
-    node* end = getEnd(root);
-    MinMax(end->parent, -INF, INF,pn);
-    deleting(root);
-    pos.first=nextpos.x;
-    pos.second=nextpos.y;
-    qDebug()<<"choosing func end"<<pos.first<<" "<<pos.second;
-    int a;
-    for(int i=0; i<1000; i++){
-        a=1+5;
+    std::random_shuffle(v.begin(),v.end());
+    QPair<int,int> maxpos;
+    maxpos.first=v[0].x;
+    maxpos.second=v[0].y;
+    int maxscore=maxscoring(Board,pn,v[0]);
+    int tempscore;
+    for(int i=0; i<v.size(); i++){
+        tempscore=maxscoring(Board,pn,v[i]);
+        qDebug()<<"Score:"<<QString::number(tempscore);
+        if(maxscore<tempscore){
+            maxscore=tempscore;
+            maxpos.first=v[i].x;
+            maxpos.second=v[i].y;
+        }
     }
-    return pos;
+    qDebug()<<"choosing func end"<<maxpos.first<<" "<<maxpos.second;
+    return maxpos;
 }
 void BoardScene::printing(){
     for(int i=0; i<BOARDSIZE; i++){

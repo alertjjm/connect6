@@ -174,11 +174,11 @@ void MultiPlay::readyPacketRead()
                 playerBrush.setColor(myplayer_num == 1 ? Qt::black : Qt::white);
                 scene->setLayableOn();
                 QPair<int,int> position=scene->choose(myplayer_num);
-                qDebug()<<"x: "<<nextpos.x<<"y: "<<nextpos.y;
                 scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
                 scene->Board[position.second][position.first]=myplayer_num;
                 layedStoneXY[0]=position.first;
                 layedStoneXY[1]=position.second;
+                qDebug()<<"x: "<<position.first<<"y: "<<position.second;
                 position=scene->choose(myplayer_num);
                 scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
                 scene->Board[position.second][position.first]=myplayer_num;
