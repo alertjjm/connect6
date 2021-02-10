@@ -21,7 +21,7 @@ public:
     void setBrush1(Qt::GlobalColor c) { player1Brush.setColor(c); }
     void place(int x, int y);
     int Board[BOARDSIZE][BOARDSIZE];
-    QPair<uint8_t, uint8_t> choose(int pn);
+    QPair<uint8_t, uint8_t> choose(int pn,int dols);
     int playernum;
     void mousepress(QGraphicsSceneMouseEvent *event);
     void printing();

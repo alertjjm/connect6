@@ -20,7 +20,7 @@ public:
     void setAddr(QString addr, quint16 port);
     void play();
     void requestToSendPUT();
-    void MultiPlay::clickBoard(uint8_t x, uint8_t y);
+    void clickBoard(uint8_t x, uint8_t y);
     int myplayer_num;
 private slots:
     void gameStart();

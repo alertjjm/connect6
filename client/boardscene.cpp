@@ -21,7 +21,7 @@ BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
             Board[i][j]=0;
 }
 
-QPair<uint8_t, uint8_t> BoardScene:: choose(int pn){
+QPair<uint8_t, uint8_t> BoardScene:: choose(int pn, int dols){
     _sleep(2000);
     qDebug()<<"choosing func start";
     std::srand ( unsigned ( std::time(0) ) );
@@ -42,10 +42,10 @@ QPair<uint8_t, uint8_t> BoardScene:: choose(int pn){
     QPair<int,int> maxpos;
     maxpos.first=v[0].x;
     maxpos.second=v[0].y;
-    int maxscore=maxscoring(Board,pn,v[0]);
+    int maxscore=maxscoring(Board,pn,v[0],dols);
     int tempscore;
     for(int i=0; i<v.size(); i++){
-        tempscore=maxscoring(Board,pn,v[i]);
+        tempscore=maxscoring(Board,pn,v[i], dols);
         qDebug()<<"Score:"<<QString::number(tempscore);
         if(maxscore<tempscore){
             maxscore=tempscore;

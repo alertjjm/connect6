@@ -1,5 +1,6 @@
 #include "multiplay.h"
 #include <Windows.h>
+#include <QMessageBox>
 MultiPlay::MultiPlay()
 {
     MultiPlay(nullptr, nullptr);
@@ -173,13 +174,13 @@ void MultiPlay::readyPacketRead()
 
                 playerBrush.setColor(myplayer_num == 1 ? Qt::black : Qt::white);
                 scene->setLayableOn();
-                QPair<int,int> position=scene->choose(myplayer_num);
+                QPair<int,int> position=scene->choose(myplayer_num,1);
                 scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
                 scene->Board[position.second][position.first]=myplayer_num;
                 layedStoneXY[0]=position.first;
                 layedStoneXY[1]=position.second;
                 qDebug()<<"x: "<<position.first<<"y: "<<position.second;
-                position=scene->choose(myplayer_num);
+                position=scene->choose(myplayer_num,0);
                 scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
                 scene->Board[position.second][position.first]=myplayer_num;
                 layedStoneXY[2]=position.first;
@@ -192,6 +193,8 @@ void MultiPlay::readyPacketRead()
 
                 qDebug() << game_over_data_parsing(payload_ptr, payload_len, &gmvr_ptd);
                 qDebug() << hdr.player_num<<" Wins";
+                QMessageBox m;
+                m.information(nullptr,"GAME OVER",QString::number(hdr.player_num)+" Wins");
                 scene->setLayableOff();
             } else {
                 qDebug() << "Illegal packet received.";
@@ -243,6 +246,8 @@ void MultiPlay::clickBoard(uint8_t x, uint8_t y)
 
 void MultiPlay::requestToSendPUT()
 {
+    if(!scene->isLayable())
+        return;
     PutTurnData snd_ptd;
 
     snd_ptd.coord_num = countInLayedStone;

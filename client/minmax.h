@@ -20,7 +20,7 @@ typedef struct pos {
 }pos;
 
 extern pos nextpos;
-int maxscoring(int Board[][BOARDSIZE], int pn, pos p);
+int maxscoring(int Board[][BOARDSIZE], int pn, pos p, int dols);
 int isnear(int Board[][BOARDSIZE], int x, int y);
-int connectcount(int Board[][BOARDSIZE], int x, int y,int pn);
+int connectcount(int Board[][BOARDSIZE], int x, int y,int pn, int dols);
 #endif // MINMAX_H

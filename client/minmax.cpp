@@ -25,7 +25,7 @@ int isnear(int Board[][BOARDSIZE], int x, int y) {
     }
     return 0;
 }
-int connectcount(int Board[][BOARDSIZE], int x, int y,int pn) {
+int connectcount(int Board[][BOARDSIZE], int x, int y,int pn,int dols) {
     int comparenum=Board[y][x];
     int totalcount = 0;
     int cnt1, cnt2, counts, tempcount;
@@ -91,19 +91,28 @@ int connectcount(int Board[][BOARDSIZE], int x, int y,int pn) {
         tempcount=3000;
         break;
     case 4:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=5000;
+        else if(pn==comparenum && dols==0)
             tempcount=4000;
+        else if(pn!=comparenum &&dols==1)
+            tempcount=50000;
+        else
+            tempcount=50000;
         break;
     case 5:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=INF;
+        else if(pn==comparenum && dols==0)
             tempcount=6000;
+        else
+            tempcount=65000;
         break;
     case 6:
-        tempcount=INF;
+        if(pn==comparenum)
+            tempcount=INF;
+        else
+            tempcount=INF-1000;
         break;
     default:
         tempcount=INF;
@@ -172,19 +181,28 @@ int connectcount(int Board[][BOARDSIZE], int x, int y,int pn) {
         tempcount=3000;
         break;
     case 4:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=5000;
+        else if(pn==comparenum && dols==0)
             tempcount=4000;
+        else if(pn!=comparenum &&dols==1)
+            tempcount=10000;
+        else
+            tempcount=10000;
         break;
     case 5:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=INF;
+        else if(pn==comparenum && dols==0)
             tempcount=6000;
+        else
+            tempcount=15000;
         break;
     case 6:
-        tempcount=INF;
+        if(pn==comparenum)
+            tempcount=INF;
+        else
+            tempcount=INF-1000;
         break;
     default:
         tempcount=INF;
@@ -251,19 +269,28 @@ int connectcount(int Board[][BOARDSIZE], int x, int y,int pn) {
         tempcount=3000;
         break;
     case 4:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=5000;
+        else if(pn==comparenum && dols==0)
             tempcount=4000;
+        else if(pn!=comparenum &&dols==1)
+            tempcount=10000;
+        else
+            tempcount=10000;
         break;
     case 5:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=INF;
+        else if(pn==comparenum && dols==0)
             tempcount=6000;
+        else
+            tempcount=15000;
         break;
     case 6:
-        tempcount=INF;
+        if(pn==comparenum)
+            tempcount=INF;
+        else
+            tempcount=INF-1000;
         break;
     default:
         tempcount=INF;
@@ -330,19 +357,28 @@ int connectcount(int Board[][BOARDSIZE], int x, int y,int pn) {
         tempcount=3000;
         break;
     case 4:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=5000;
+        else if(pn==comparenum && dols==0)
             tempcount=4000;
+        else if(pn!=comparenum &&dols==1)
+            tempcount=10000;
+        else
+            tempcount=10000;
         break;
     case 5:
-        if(pn==comparenum)
-            tempcount=4500;
-        else
+        if(pn==comparenum && dols==1)
+            tempcount=INF;
+        else if(pn==comparenum && dols==0)
             tempcount=6000;
+        else
+            tempcount=15000;
         break;
     case 6:
-        tempcount=INF;
+        if(pn==comparenum)
+            tempcount=INF;
+        else
+            tempcount=INF-1000;
         break;
     default:
         tempcount=INF;
@@ -356,7 +392,7 @@ int connectcount(int Board[][BOARDSIZE], int x, int y,int pn) {
     return totalcount;
 }
 
-int maxscoring(int Board[][BOARDSIZE], int pn, pos p) {
+int maxscoring(int Board[][BOARDSIZE], int pn, pos p, int dols) {
     int total_score = 0;
     long temp_score;
     Board[p.y][p.x]=pn;
@@ -365,7 +401,7 @@ int maxscoring(int Board[][BOARDSIZE], int pn, pos p) {
             if (Board[y][x] == 0)
                 continue;
             else{
-                temp_score=connectcount(Board,x,y,pn);
+                temp_score=connectcount(Board,x,y,pn, dols);
                 if(temp_score==INF && Board[y][x] == pn){
                     Board[p.y][p.x]=0;
                     return INF*1.2;
