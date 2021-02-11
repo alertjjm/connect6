@@ -20,9 +20,79 @@ BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
         for(int j=0; j<BOARDSIZE; j++)
             Board[i][j]=0;
 }
-
+QPair<uint8_t, uint8_t> BoardScene:: minmaxpick(int pn, int dols){//status 1,0
+    std::srand ( unsigned ( std::time(0) ) );
+    std::vector<pos> v;
+    for (int y = 0; y < BOARDSIZE; y++) {
+        for (int x = 0; x < BOARDSIZE; x++) {
+            if (Board[y][x] == 0) {
+                if (isnear(Board, x, y)) {
+                    pos p;
+                    p.x = x;
+                    p.y = y;
+                    v.push_back(p);
+                }
+            }
+        }
+    }
+    std::random_shuffle(v.begin(),v.end());
+    int tempBoard[BOARDSIZE][BOARDSIZE];
+    for(int i=0; i<BOARDSIZE; i++){
+        for(int j=0; j<BOARDSIZE; j++){
+            tempBoard[i][j]=Board[i][j];
+        }
+    }
+    QPair<int,int> position;
+    int max=-3*INF;
+    int maxindex=-1;//못찾으면 일부러 에러터뜨리려고
+    for(int i=0; i<v.size(); i++){
+        switch (dols) {
+        case 1:
+            tempBoard[v[i].y][v[i].x]=pn;
+            position=choose(pn,0);   //최적으로 다음애가 놓겠지
+            tempBoard[position.second][position.first]=pn;
+            if(pn==1){
+                position=choose(2,1);
+                tempBoard[position.second][position.first]=2;
+                position=choose(2,0);
+                tempBoard[position.second][position.first]=2;
+            }
+            else{
+                position=choose(1,1);
+                tempBoard[position.second][position.first]=1;
+                position=choose(1,0);
+                tempBoard[position.second][position.first]=1;
+            }
+            break;
+        case 0:
+            tempBoard[v[i].y][v[i].x]=pn;
+            if(pn==1){
+                position=choose(2,1);
+                tempBoard[position.second][position.first]=2;
+                position=choose(2,0);
+                tempBoard[position.second][position.first]=2;
+            }
+            else{
+                position=choose(1,1);
+                tempBoard[position.second][position.first]=1;
+                position=choose(1,0);
+                tempBoard[position.second][position.first]=1;
+            }
+            break;
+        }
+        int tempscore=maxscoring(tempBoard,pn,v[i],0);
+        if(max<tempscore){
+            max=tempscore;
+            maxindex=i;
+        }
+    }
+    QPair<uint8_t, uint8_t> pos;
+    pos.first=v[maxindex].x;
+    pos.second=v[maxindex].y;
+    return pos;
+}
 QPair<uint8_t, uint8_t> BoardScene:: choose(int pn, int dols){
-    _sleep(2000);
+    //_sleep(2000);
     qDebug()<<"choosing func start";
     std::srand ( unsigned ( std::time(0) ) );
     std::vector<pos> v;

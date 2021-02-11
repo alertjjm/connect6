@@ -72,7 +72,6 @@ void MultiPlay::readyPacketRead()
 {
     Connect6ProtocolHdr hdr;
     GameStartData rcv_gsd;
-    msg->append(tr("Packet received"));
     // Behaviors by state
     while (payload_len > 0 || socket->bytesAvailable() > 0) {
 
@@ -160,8 +159,6 @@ void MultiPlay::readyPacketRead()
                 }
             } else if (hdr.type == TURN) {
                 qDebug() << "TURN packet received.";
-                msg->append(tr("TURN packet received"));
-
                 qDebug() << put_turn_data_parsing(payload_ptr, payload_len, &rcv_ptd);
                 qDebug() << "rcv_ptd.coord_num =" << rcv_ptd.coord_num;
                 qDebug() << "rcv_ptd.x1 =" << rcv_ptd.xy[0];
@@ -174,13 +171,13 @@ void MultiPlay::readyPacketRead()
 
                 playerBrush.setColor(myplayer_num == 1 ? Qt::black : Qt::white);
                 scene->setLayableOn();
-                QPair<int,int> position=scene->choose(myplayer_num,1);
+                QPair<int,int> position=scene->minmaxpick(myplayer_num,1);
                 scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
                 scene->Board[position.second][position.first]=myplayer_num;
                 layedStoneXY[0]=position.first;
                 layedStoneXY[1]=position.second;
                 qDebug()<<"x: "<<position.first<<"y: "<<position.second;
-                position=scene->choose(myplayer_num,0);
+                position=scene->minmaxpick(myplayer_num,0);
                 scene->addEllipse(25*position.first-12.5, 25*position.second-12.5, 25, 25, outlinePen, playerBrush);
                 scene->Board[position.second][position.first]=myplayer_num;
                 layedStoneXY[2]=position.first;
