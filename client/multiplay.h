@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <QGraphicsScene>
 #include <QTextEdit>
+#include <QLabel>
 #include<cstring>
 #include <QThread>
 #include "../connect6_protocol/connect6_protocol.h"
@@ -15,7 +16,7 @@ class MultiPlay : public QObject
 
 public:
     MultiPlay();
-    MultiPlay(BoardScene *scene, QTextEdit *msg);
+    MultiPlay(BoardScene *scene, QTextEdit *msg, QLabel *lbl);
     ~MultiPlay();
     void setAddr(QString addr, quint16 port);
     void play();
@@ -34,6 +35,7 @@ private:
     quint16 port;
     BoardScene *scene;
     QTextEdit *msg;
+    QLabel *lbl;
 
     enum GameState {
         GAME_NOT_STARTED,
@@ -46,7 +48,6 @@ private:
     size_t payload_len;
     int player_num;
     QString other_player_name;
-
     size_t countInLayedStone;
     uint8_t layedStoneXY[4];
 };

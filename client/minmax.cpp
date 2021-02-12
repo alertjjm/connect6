@@ -10,8 +10,8 @@
 #include<vector>
 using namespace std;
 int isnear(int Board[][BOARDSIZE], int x, int y) {
-    int dy[] = { -1,1,0,-2,2};
-    int dx[] = { -1,1,0,-2,2 };
+    int dy[] = { -1,1,0,-2,2,-3,3};
+    int dx[] = { -1,1,0,-2,2,-3,3};
     int posx, posy;
     for (int iy = 0; iy < sizeof(dy)/sizeof(int); iy++) {
         for (int ix = 0; ix < sizeof(dx)/sizeof(int); ix++) {

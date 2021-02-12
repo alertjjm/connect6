@@ -7,11 +7,7 @@
 #include "multiplay.h"
 #include "boardscene.h"
 
-// Fixed Game Options
 #define PORT 8089
-#define MAX_PLAYER 2
-#define TIMEOUT_SECONDS 30
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -23,19 +19,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    bool startstatus;
-
 private slots:
-
-    void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
-
     void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
-
     BoardScene *scene;
 };
 #endif // MAINWINDOW_H

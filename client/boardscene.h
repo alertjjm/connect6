@@ -25,9 +25,7 @@ public:
     QPair<uint8_t, uint8_t> choose(int pn,int dols);
     int playernum;
     void mousepress(QGraphicsSceneMouseEvent *event);
-    void printing();
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
     bool wincheck(int x, int y);
 
 signals:

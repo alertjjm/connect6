@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <iostream>     // std::cout
 #include <algorithm>
-pos nextpos;
 BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
 {
     srand(time(NULL));
@@ -20,7 +19,7 @@ BoardScene::BoardScene(QObject *parent) : QGraphicsScene(parent)
         for(int j=0; j<BOARDSIZE; j++)
             Board[i][j]=0;
 }
-QPair<uint8_t, uint8_t> BoardScene:: minmaxpick(int pn, int dols){//status 1,0
+QPair<uint8_t, uint8_t> BoardScene:: minmaxpick(int pn, int dols){
     std::srand ( unsigned ( std::time(0) ) );
     std::vector<pos> v;
     for (int y = 0; y < BOARDSIZE; y++) {
@@ -126,14 +125,7 @@ QPair<uint8_t, uint8_t> BoardScene:: choose(int pn, int dols){
     qDebug()<<"choosing func end"<<maxpos.first<<" "<<maxpos.second;
     return maxpos;
 }
-void BoardScene::printing(){
-    for(int i=0; i<BOARDSIZE; i++){
-        for(int j=0; j<BOARDSIZE; j++){
-            printf("%2d", Board[i][j]);
-        }
-        printf("\n");
-    }
-}
+
 void BoardScene::place(int x, int y){
     if(!isLayable())
         return;
@@ -281,7 +273,3 @@ void BoardScene::mousepress(QGraphicsSceneMouseEvent* event){
     emit clickedBoard(uint8_t(p.x()/25), uint8_t(p.y()/25));
 }
 
-void BoardScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    mousepress(event);
-}
