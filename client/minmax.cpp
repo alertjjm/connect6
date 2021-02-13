@@ -25,10 +25,7 @@ int isnear(int Board[][BOARDSIZE], int x, int y) {
     }
     return 0;
 }
-int broadcount(int Board[][BOARDSIZE], int x, int y,int pn){
 
-    return 0;
-}
 int connectcount(int Board[][BOARDSIZE], int x, int y,int pn,int dols) {
     int comparenum=Board[y][x];
     int totalcount = 0;
@@ -393,11 +390,6 @@ int connectcount(int Board[][BOARDSIZE], int x, int y,int pn,int dols) {
         totalcount+=tempcount;
     else
         totalcount+=tempcount/2;
-    int linecounter=broadcount(Board,x,y,pn);
-    if(linecounter>=5)
-        totalcount+=INF;
-    else if(linecounter==4)
-        totalcount+=10000;
     return totalcount;
 }
 

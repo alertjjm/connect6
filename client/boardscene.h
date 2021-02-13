@@ -24,7 +24,6 @@ public:
     int Board[BOARDSIZE][BOARDSIZE];
     QPair<uint8_t, uint8_t> choose(int pn,int dols);
     int playernum;
-    void mousepress(QGraphicsSceneMouseEvent *event);
 protected:
     bool wincheck(int x, int y);
 

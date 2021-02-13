@@ -1,7 +1,5 @@
 #include "multiplay.h"
-#include <Windows.h>
 #include <QMessageBox>
-#include<QApplication>
 MultiPlay::MultiPlay()
 {
     MultiPlay(nullptr, nullptr,nullptr);
@@ -40,8 +38,6 @@ void MultiPlay::play()
 
     connect(socket, SIGNAL(connected()), this, SLOT(gameStart()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyPacketRead()));
-    connect(scene, SIGNAL(clickedBoard(uint8_t, uint8_t)),
-            this, SLOT(clickedBoard(uint8_t, uint8_t)));
 
     msg->append(tr("Connecting to ") + addr + ":" + QString::number(port) + " ...");
 }
@@ -119,7 +115,6 @@ void MultiPlay::readyPacketRead()
                 qDebug() << "rcv_ptd.y1 =" << rcv_ptd.xy[1];
                 for (int i = 0; i < rcv_ptd.coord_num; i++) {
                     scene->addEllipse(25*rcv_ptd.xy[2*i]-12.5, 25*rcv_ptd.xy[2*i+1]-12.5, 25, 25, outlinePen, playerBrush);
-                    QApplication::processEvents();
                     scene->Board[rcv_ptd.xy[2*i+1]][rcv_ptd.xy[2*i]]=hdr.player_num;
                 }
             } else if (hdr.type == TURN) {
@@ -132,6 +127,19 @@ void MultiPlay::readyPacketRead()
                     scene->addEllipse(25*rcv_ptd.xy[2*i]-12.5, 25*rcv_ptd.xy[2*i+1]-12.5, 25, 25, outlinePen, playerBrush);
                     scene->Board[rcv_ptd.xy[2*i+1]][rcv_ptd.xy[2*i]]=hdr.player_num;
                 }
+                int status=0;
+                for(int i=0; i<BOARDSIZE; i++){
+                    for(int j=0; j<BOARDSIZE; j++){
+                        if(scene->Board[i][j]==0){
+                            status=1;
+                            break;
+                        }
+                    }
+                    if(status==1)
+                        break;
+                }
+                if(status==0)
+                    return;
                 playerBrush.setColor(myplayer_num == 1 ? Qt::black : Qt::white);
                 scene->setLayableOn();
                 QPair<int,int> position=scene->minmaxpick(myplayer_num,1);
@@ -164,32 +172,6 @@ void MultiPlay::readyPacketRead()
         }
     }
     payload_ptr=payload;
-}
-
-void MultiPlay::clickedBoard(uint8_t x, uint8_t y)
-{
-    QBrush playerBrush(player_num == 1 ? Qt::black : Qt::white);
-    scene->Board[y][x]=player_num;
-    QPen outlinePen(Qt::black);
-    scene->addEllipse(25*x-12.5, 25*y-12.5, 25, 25, outlinePen, playerBrush);
-    layedStoneXY[countInLayedStone * 2] = x;
-    layedStoneXY[countInLayedStone * 2 + 1] = y;
-    countInLayedStone++;
-    if (countInLayedStone >= 2) {
-        requestToSendPUT();
-    }
-}
-void MultiPlay::clickBoard(uint8_t x, uint8_t y)
-{
-    QBrush playerBrush(player_num == 1 ? Qt::black : Qt::white);
-    QPen outlinePen(Qt::black);
-    scene->addEllipse(25*x-12.5, 25*y-12.5, 25, 25, outlinePen, playerBrush);
-    layedStoneXY[countInLayedStone * 2] = x;
-    layedStoneXY[countInLayedStone * 2 + 1] = y;
-    countInLayedStone++;
-    if (countInLayedStone >= 2) {
-        requestToSendPUT();
-    }
 }
 
 void MultiPlay::requestToSendPUT()

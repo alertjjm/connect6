@@ -256,20 +256,5 @@ bool BoardScene::wincheck(int x, int y){
         return true;
     return false;
 }
-void BoardScene::mousepress(QGraphicsSceneMouseEvent* event){
-    if(!isLayable())
-        return;
-    QPointF p = event->scenePos();
-    p.setX(int((p.x()+12.5) / 25) * 25);
-    p.setY(int((p.y()+12.5) / 25) * 25);
-    uint8_t x=uint8_t(p.x()/25);
-    uint8_t y=uint8_t(p.y()/25);
-    if (Board[y][x]!=0){
-        qDebug()<<"Not layable";
-        return;
-    }
-    qDebug()<<turn;
-    place(x,y);
-    emit clickedBoard(uint8_t(p.x()/25), uint8_t(p.y()/25));
-}
+
 
