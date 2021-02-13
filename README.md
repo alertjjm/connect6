@@ -1,4 +1,9 @@
 # connect6
+- LANG: CPP
+- ALGORITHM: MinMax Algorithm
+- ENV: Qt 5.12.10
+- BUILD: MinGW-64bit
+- PROTOCOL: connect6_protocol(https://github.com/creationyun/bob9-connect6/wiki)
 
 ## How to?
 - Text Edit 창에 서버 IP입력 후 Play 버튼 클릭하면 자동 연결
